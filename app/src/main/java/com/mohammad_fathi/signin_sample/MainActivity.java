@@ -1,19 +1,20 @@
 package com.mohammad_fathi.signin_sample;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.mohammad_fathi.signin_sample.entity.LoginRequestDto;
 import com.mohammad_fathi.signin_sample.entity.LoginResponseDto;
 import com.mohammad_fathi.signin_sample.entity.User;
 import com.mohammad_fathi.signin_sample.webService.WebserviceApi;
+
+import java.util.Date;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -24,12 +25,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
-    //String BASE_URL = "http://10.0.2.2:21021";
-    String BASE_URL = "http://bitiranwebhost20200905160203.azurewebsites.net";
+    //String BASE_URL = "http://10.0.2.2:21021";// Visual Studio solution
+    //String BASE_URL = "http://bitiranwebhost20200905160203.azurewebsites.net";
+    String BASE_URL = "http://10.0.2.2:4200";// Node.js solution
+
     String name_user, username, password;
     EditText et_username, et_password;
     String accessToken;
-    Integer userId;
+    String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         userInfo.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(@NonNull Call<User> call,@NonNull Response<User> response) {
                 User user1 = response.body();
 
                 String message = String.format("%s , %s", response.code(), response.message());
@@ -80,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable t) {
+            public void onFailure(@NonNull Call<User> call,@NonNull Throwable t) {
                 Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -100,18 +103,18 @@ public class MainActivity extends AppCompatActivity {
             WebserviceApi api = retrofit.create(WebserviceApi.class);
 
             //3) Create Request
-            Call<LoginResponseDto> loginResponseCall = api.login(new LoginRequestDto(username, password));
+            Call<LoginResponseDto> requestCall = api.login(new LoginRequestDto(username, password));
 
-            loginResponseCall.enqueue(new Callback<LoginResponseDto>() {
+            requestCall.enqueue(new Callback<LoginResponseDto>() {
                 @Override
-                public void onResponse(Call<LoginResponseDto> call, Response<LoginResponseDto> response) {
+                public void onResponse(@NonNull Call<LoginResponseDto> call,@NonNull Response<LoginResponseDto> response) {
 
                     if (response.isSuccessful()) {
-                        LoginResponseDto authenticationResponseDto = response.body();
-                        if (authenticationResponseDto != null & authenticationResponseDto.success) {
-                            accessToken = authenticationResponseDto.result.accessToken;
-                            userId = authenticationResponseDto.result.userId;
-                            Integer expireInSeconds = authenticationResponseDto.result.expireInSeconds;
+                        LoginResponseDto responseDto = response.body();
+                        if (responseDto != null  ) {
+                            accessToken = responseDto.accessToken;
+                            userId = responseDto.userId;
+                            Date accessTokenExpirationDate = responseDto.expirationDate;
                             // todo save auth token in preference
                             // todo redirect to main activity
                             Toast.makeText(MainActivity.this, "Successful login", Toast.LENGTH_SHORT).show();
@@ -132,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onFailure(Call<LoginResponseDto> call, Throwable t) {
+                public void onFailure(@NonNull Call<LoginResponseDto> call,@NonNull Throwable t) {
                     Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });

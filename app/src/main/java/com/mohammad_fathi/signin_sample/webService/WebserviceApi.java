@@ -15,30 +15,31 @@ import retrofit2.http.Query;
 
 public interface WebserviceApi {
     String getUserInfo = "/api/services/app/User/Get?Id=1";
-
     String SignUp = "/api/services/app/Account/Register";
-    //post
-    //    {
-    //        "name": "sssss",
-    //            "surname": "1sdasdasdasd",
-    //            "userName": "iabidi22",
-    //            "emailAddress": "user@example.com",
-    //            "password": "1234Qwewwr"
-    //    }
     String Authenticate = "/api/TokenAuth/Authenticate";
 
-    //https://stackoverflow.com/questions/41078866/retrofit2-authorization-global-interceptor-for-access-token
     @GET(getUserInfo)
-    Call<User> getUserInfo(@Query("id") Integer id, @Header("Authorization") String authenticationKey);
+    Call<User> getUserInfo(@Query("id") String id, @Header("Authorization") String authenticationKey);
 
     @POST(SignUp)
     @Headers("Content-Type: application/json")
-        //void signUp(@Field("username") String username,@Field("password") String password);
+    //void signUp(@Field("username") String username,@Field("password") String password);
     Call<User> signUp(@Field("username") String username, @Field("password") String password, @Field("name_user") String name_user);
 
     @Headers("Content-Type: application/json")
     @POST(Authenticate)
-        //void signUp(@Field("username") String username,@Field("password") String password);
-        //Call<LoginResponseDto> login(@Field("UsernameOrEmailAddress") String usernameOrEmailAddress, @Field("password") String password);
+    //void signUp(@Field("username") String username,@Field("password") String password);
+    //Call<LoginResponseDto> login(@Field("UsernameOrEmailAddress") String usernameOrEmailAddress, @Field("password") String password);
     Call<LoginResponseDto> login(@Body LoginRequestDto loginRequestDto);
 }
+
+
+//post SignUp sample
+//    {
+//            "name": "sssss",
+//            "surname": "1sdasdasdasd",
+//            "userName": "iabidi22",
+//            "emailAddress": "user@example.com",
+//            "password": "1234Qwewwr"
+//    }
+//https://stackoverflow.com/questions/41078866/retrofit2-authorization-global-interceptor-for-access-token
